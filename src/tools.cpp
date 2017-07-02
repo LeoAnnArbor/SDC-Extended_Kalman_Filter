@@ -16,34 +16,34 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
     * Calculate the RMSE here.
   */
     
-    VectorXd rmse(4);
-    rmse << 0, 0, 0, 0;
-    // check the validity of the following inputs:
-    //  * the estimation vector size should not be zero
-    //  * the estimation vector size should equal ground truth vector size
-    if (estimations.size() != ground_truth.size() || estimations.size() == 0)
-    {
-        cout << "Invalid estimation or ground truth data"<< endl;
-    }
+  VectorXd rmse(4);
+  rmse << 0, 0, 0, 0;
+  // check the validity of the following inputs:
+  //  * the estimation vector size should not be zero
+  //  * the estimation vector size should equal ground truth vector size
+  if (estimations.size() != ground_truth.size() || estimations.size() == 0)
+  {
+    cout << "Invalid estimation or ground truth data"<< endl;
+  }
     
-    // accumulate squared residuals
-    for (int i = 0; i < estimations.size(); i++)
-    {
-        VectorXd residual = estimations[i] - ground_truth[i];
+  // accumulate squared residuals
+  for (int i = 0; i < estimations.size(); i++)
+  {
+    VectorXd residual = estimations[i] - ground_truth[i];
         
-        //coefficient-wise multiplication
-        residual = residual.array() * residual.array();
-        rmse += residual;
-    }
+    //coefficient-wise multiplication
+    residual = residual.array() * residual.array();
+    rmse += residual;
+  }
     
-    //calculate mean
-    rmse = rmse/estimations.size();
+  //calculate mean
+  rmse = rmse/estimations.size();
     
-    //calculate squared root
+  //calculate squared root
     
-    rmse = rmse.array().sqrt();
+  rmse = rmse.array().sqrt();
     
-    return rmse;
+  return rmse;
 }
 
 MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
@@ -51,28 +51,30 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
   TODO:
     * Calculate a Jacobian here.
   */
-    MatrixXd Hj(3,4);
+  MatrixXd Hj(3,4);
     
-    //recover state parameters
-    float px = x_state(0);
-    float py = x_state(1);
-    float vx = x_state(2);
-    float vy = x_state(3);
+  //recover state parameters
+  float px = x_state(0);
+  float py = x_state(1);
+  float vx = x_state(2);
+  float vy = x_state(3);
    
-    float c1 = px * px + py * py;
-    float c2 = sqrt(c1);
-    float c3 = c1 * c2;
+  float c1 = px * px + py * py;
+
     
-    //check division by zero
-    if(fabs(c1) < 0.0001)
-    {
-        cout << "CalculateJacobian () - Error - Division by Zero" << endl;
-        return Hj;
-    }
-    //compute the Jacobian matrix
-    Hj << (px/c2), (py/c2), 0, 0,
+  //check division by zero
+  if (fabs(c1) < 0.0001)
+  {
+    cout << "CalculateJacobian () - Error - Division by Zero" << endl;
+    c1 =0.0001;
+  }
+    
+  float c2 = sqrt(c1);
+  float c3 = c1 * c2;
+  //compute the Jacobian matrix
+  Hj << (px/c2), (py/c2), 0, 0,
          -(py/c1), (px/c1), 0, 0,
          py*(vx*py - vy*px)/c3, px*(px*vy - py*vx)/c3, px/c2, py/c2;
         
-    return Hj;
+  return Hj;
 }
